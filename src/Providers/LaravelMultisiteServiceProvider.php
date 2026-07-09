@@ -32,6 +32,20 @@ class LaravelMultisiteServiceProvider extends ServiceProvider
     {
         $this->app->register(LaravelMultisiteAuthServiceProvider::class);
 
+        // Must run before any `ResourceResolver::*()` call below: those
+        // read straight from the `gingerminds-multisite` config
+        // namespace, which only exists once merged. This normally goes
+        // unnoticed in a real app (the config is already published to
+        // disk, so Laravel's own config loader picks it up before any
+        // service provider even runs) — but an app with no published
+        // config at all, like the synthetic one Larastan/PHPStan boots for
+        // static analysis, has no other source for it and every bind
+        // below would resolve to `null`.
+        $this->mergeConfigFrom(
+            __DIR__ . '/../../config/gingerminds-multisite.php',
+            'gingerminds-multisite'
+        );
+
         $this->app->bind(
             LanguageController::class,
             ResourceResolver::controller('language')
@@ -76,11 +90,6 @@ class LaravelMultisiteServiceProvider extends ServiceProvider
         $this->app->bind(
             SiteStateProcessor::class,
             ResourceResolver::stateProcessor('site')
-        );
-
-        $this->mergeConfigFrom(
-            __DIR__ . '/../../config/gingerminds-multisite.php',
-            'gingerminds-multisite'
         );
 
         $providerPath = __DIR__ . '/../ApiProvider';
