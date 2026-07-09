@@ -2,7 +2,8 @@
     'languages',
     'translations' => [],
     'fieldsView' => null,
-    'defaultLanguage' => null
+    'defaultLanguage' => null,
+    'extra' => [],
 ])
 
 @php
@@ -31,11 +32,11 @@
              id="lang-{{ $language->id }}">
 
             @if($fieldsView)
-                @include($fieldsView, [
+                @include($fieldsView, array_merge($extra, [
                     'language' => $language,
                     'translation' => $translation,
                     'required' => $language->id === $defaultLanguage?->id
-                ])
+                ]))
             @endif
 
         </div>
