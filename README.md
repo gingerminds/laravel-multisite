@@ -27,6 +27,6 @@ Then register the package's models with API Platform (see [Installation](docs/In
 - [Installation](docs/Installation.md)
 - [Configuration](docs/Configuration.md)
 - [Context](docs/Context.md) — `SiteContext`, `LanguageContext`, and how "current" is resolved
-- [Traits](docs/Traits.md) — `TranslatableModelTrait`, `TranslationModelTrait`, `LanguageContextedModelTrait`, `SiteContextedModelTrait`
+- [Traits](docs/Traits.md) — `TranslatableModelTrait`, `TranslationModelTrait`, `LanguageContextedModelTrait`, `SiteContextedModelTrait`, `BuildsTranslationAttributesTrait`
 - [Components](docs/Components.md) — the translations form component
 - [API](docs/API.md) — admin routes and API Platform endpoints
