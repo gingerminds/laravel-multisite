@@ -32,7 +32,19 @@ class SiteRepository extends AbstractRepository implements RepositoryInterface
             return $resourceModel;
         }
 
-        $resourceModel->fill($request->all());
+        $data = $request->all();
+
+        // A blank credentials textarea means "leave the existing service
+        // account secret untouched" (it's never redisplayed once saved),
+        // not "erase it" — only overwrite when something was submitted.
+        if (
+            array_key_exists('google_service_account_credentials', $data)
+            && $data['google_service_account_credentials'] === null
+        ) {
+            unset($data['google_service_account_credentials']);
+        }
+
+        $resourceModel->fill($data);
         $resourceModel->save();
 
         $this->syncLanguages($resourceModel, $request->all());

@@ -15,6 +15,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Symfony\Component\Serializer\Attribute\Groups;
 
+/**
+ * @property string $google_drive_file_id
+ */
 #[ApiResource(
     operations: [
         new GetCollection(
@@ -81,6 +84,33 @@ class Site extends Model implements ResourceModelInterface, SortableModelInterfa
         return [
             'code',
             'url',
+            'google_drive_file_id',
+            'google_service_account_credentials',
+        ];
+    }
+
+    /**
+     * Google service account credentials must never leak through a default
+     * model serialization (toArray()/toJson()), on top of not being
+     * declared as an #[ApiProperty] on this resource.
+     *
+     * @return string[]
+     */
+    public function getHidden(): array
+    {
+        return [
+            'google_service_account_credentials',
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function casts(): array
+    {
+        return [
+            // Stored encrypted at rest; accessed as a plain decoded array.
+            'google_service_account_credentials' => 'encrypted:array',
         ];
     }
 

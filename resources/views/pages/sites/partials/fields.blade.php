@@ -2,20 +2,53 @@
     <div class="card">
         <div class="card-body">
             <div class="row">
-                @include('gingerminds-core::components.form.inputs.basic', [
-                    'type' => 'text',
-                    'id' => 'code',
-                    'label' => __('gingerminds-core::translation.form.code'),
-                    'required' => true,
-                    'value' => old('code', isset($site) ? $site->code : null)
-                ])
-                @include('gingerminds-core::components.form.inputs.basic', [
-                    'type' => 'url',
-                    'id' => 'url',
-                    'label' => __('gingerminds-multisite::translation.form.url'),
-                    'required' => true,
-                    'value' => old('url', isset($site) ? $site->url : null)
-                ])
+                <x-gingerminds-core::form.inputs.basic
+                        type="text"
+                        id="code"
+                        :label="__('gingerminds-core::translation.form.code')"
+                        :required="true"
+                        :value="old('code', isset($site) ? $site->code : null)"
+                />
+                <x-gingerminds-core::form.inputs.basic
+                        type="url"
+                        id="url"
+                        :label="__('gingerminds-multisite::translation.form.url')"
+                        :required="true"
+                        :value="old('url', isset($site) ? $site->url : null)"
+                />
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">@lang('gingerminds-multisite::translation.menu.translations')</h5>
+            <div class="row mb-3">
+                <x-gingerminds-core::form.inputs.basic
+                        type="text"
+                        id="google_drive_file_id"
+                        :label="__('gingerminds-multisite::translation.form.google_drive_file_id')"
+                        size="lg"
+                        :required="false"
+                        :value="old('google_drive_file_id', isset($site) ? $site->google_drive_file_id : null)"
+                />
+            </div>
+            <div class="row">
+                @php
+                    $googleCredentialsHelper = __('gingerminds-multisite::translation.form.google_service_account_credentials_helper')
+                        . ' '
+                        . (isset($site) && !empty($site->google_service_account_credentials)
+                            ? '(' . __('gingerminds-multisite::translation.form.google_credentials_configured') . ')'
+                            : '(' . __('gingerminds-multisite::translation.form.google_credentials_missing') . ')');
+                @endphp
+                <x-gingerminds-core::form.inputs.textarea
+                        id="google_service_account_credentials"
+                        :label="__('gingerminds-multisite::translation.form.google_service_account_credentials')"
+                        size="xl"
+                        :required="false"
+                        :rows="6"
+                        placeholder='{"type": "service_account", "client_email": "...", "private_key": "...", ...}'
+                        :helper="$googleCredentialsHelper"
+                />
             </div>
         </div>
     </div>

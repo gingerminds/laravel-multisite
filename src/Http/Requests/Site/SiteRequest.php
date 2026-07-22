@@ -40,6 +40,27 @@ class SiteRequest extends FormRequest implements FormRequestInterface
             'default_language' => $defaultLanguageId,
             'languages'        => $languages,
         ]);
+
+        // The admin form exposes the service account credentials as a raw
+        // JSON textarea, left blank on edit screens so the secret is never
+        // redisplayed. Decode it to an array here so it lands on the
+        // model's `encrypted:array` cast correctly; a blank value is
+        // normalized to null, which SiteRepository::update() treats as
+        // "leave the already-stored credentials untouched" rather than
+        // erasing them. An invalid (non-JSON) value is left as the raw
+        // string so the `array` rule below rejects it.
+        $credentials = $this->input('google_service_account_credentials');
+        if (is_string($credentials)) {
+            $trimmed = trim($credentials);
+            if ($trimmed === '') {
+                $this->merge(['google_service_account_credentials' => null]);
+            } else {
+                $decoded = json_decode($trimmed, true);
+                if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                    $this->merge(['google_service_account_credentials' => $decoded]);
+                }
+            }
+        }
     }
 
     public function withValidator(Validator $validator): void
@@ -72,10 +93,15 @@ class SiteRequest extends FormRequest implements FormRequestInterface
     public function rules(): array
     {
         return [
-            'code'             => 'required|string|max:255',
-            'url'              => 'required|url',
-            'default_language' => 'nullable|integer|exists:languages,id',
-            'languages'        => 'nullable|array',
+            'code'                 => 'required|string|max:255',
+            'url'                  => 'required|url',
+            'default_language'     => 'nullable|integer|exists:languages,id',
+            'languages'            => 'nullable|array',
+            'google_drive_file_id' => 'nullable|string|max:255',
+            // After prepareForValidation(), a valid payload has already been
+            // decoded to an array; anything still a string means the JSON
+            // pasted in the admin form was invalid.
+            'google_service_account_credentials' => 'nullable|array',
         ];
     }
 }
