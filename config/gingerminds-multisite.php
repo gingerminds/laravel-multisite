@@ -13,6 +13,18 @@ use Gingerminds\LaravelMultisite\ApiProvider\Site\SiteProvider;
 use Gingerminds\LaravelMultisite\StateProcessor\Site\SiteStateProcessor;
 
 return [
+    'translation' => [
+        // Master switch for the whole "front translations from a Google
+        // Drive xlsx" feature (routes, provider, admin fields).
+        'enabled' => env('GINGERMINDS_MULTISITE_TRANSLATION_ENABLED', false),
+
+        // How long the parsed translations (locale => [key => value]) are
+        // kept in cache per site, in seconds. This only protects against
+        // hammering the Google Drive API on high traffic — translations are
+        // still fetched "live", just not re-downloaded on every request.
+        'cache_ttl' => env('GINGERMINDS_MULTISITE_TRANSLATION_CACHE_TTL', 300),
+    ],
+
     'resources' => [
         'language' => [
             'model' => Language::class,

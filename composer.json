@@ -15,7 +15,9 @@
     ],
     "require": {
         "php": "^8.4",
-        "gingerminds/laravel-core": "^3.0"
+        "gingerminds/laravel-core": "^3.0",
+        "google/apiclient": "^2.18",
+        "phpoffice/phpspreadsheet": "^3.5"
     },
     "require-dev": {
         "larastan/larastan": "^3.8",
@@ -25,6 +27,11 @@
         "friendsofphp/php-cs-fixer": "^3.0",
         "rector/rector": "^2.0",
         "phpdocumentor/type-resolver": "^1.8"
+    },
+    "config": {
+        "platform": {
+            "ext-gd": "8.4"
+        }
     },
     "extra": {
         "laravel": {
