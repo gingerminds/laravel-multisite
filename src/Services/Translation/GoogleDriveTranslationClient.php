@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Gingerminds\LaravelMultisite\Services\Translation;
 
+use Gingerminds\LaravelMultisite\Exceptions\Translation\TranslationSourceException;
 use Google\Client as GoogleClient;
 use Google\Service\Drive as GoogleServiceDrive;
 use Psr\Http\Message\ResponseInterface;
-use RuntimeException;
 
 /**
  * Downloads the translation spreadsheet from Google Drive into a local
@@ -61,7 +61,7 @@ class GoogleDriveTranslationClient
         /** @var ResponseInterface $response */
         $tempPath = tempnam(sys_get_temp_dir(), 'gm_translation_');
         if ($tempPath === false) {
-            throw new RuntimeException('Unable to create a temporary file to download the translation xlsx.');
+            throw new TranslationSourceException('Unable to create a temporary file to download the translation xlsx.');
         }
 
         // PhpSpreadsheet's xlsx reader relies on the file extension /
