@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Gingerminds\LaravelMultisite\Providers;
 
 use ApiPlatform\State\ProviderInterface;
+use Gingerminds\LaravelCore\Cache\CacheContextResolverInterface;
 use Gingerminds\LaravelMultisite\ApiProvider\Language\LanguageProvider;
 use Gingerminds\LaravelMultisite\ApiProvider\Site\SiteProvider;
+use Gingerminds\LaravelMultisite\Cache\SiteLanguageCacheContextResolver;
 use Gingerminds\LaravelMultisite\Http\Controllers\Language\LanguageController;
 use Gingerminds\LaravelMultisite\Http\Controllers\Site\SiteController;
 use Gingerminds\LaravelMultisite\Http\Middleware\Context\LanguageContextResolver;
@@ -45,6 +47,13 @@ class LaravelMultisiteServiceProvider extends ServiceProvider
             __DIR__ . '/../../config/gingerminds-multisite.php',
             'gingerminds-multisite'
         );
+
+        // Rebinds core's no-op default with the real site/language cache
+        // context, so AbstractRepository's cache keys vary with what
+        // actually changes the query result for a translated, site-scoped
+        // resource. See SiteLanguageCacheContextResolver's docblock for why
+        // the site's fallback language isn't included separately.
+        $this->app->bind(CacheContextResolverInterface::class, SiteLanguageCacheContextResolver::class);
 
         $this->app->bind(
             LanguageController::class,

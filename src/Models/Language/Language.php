@@ -6,8 +6,10 @@ namespace Gingerminds\LaravelMultisite\Models\Language;
 
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
+use Gingerminds\LaravelCore\Models\CacheableResourceInterface;
 use Gingerminds\LaravelCore\Models\ResourceModelInterface;
 use Gingerminds\LaravelCore\Models\SortableModelInterface;
+use Gingerminds\LaravelCore\Models\Trait\CacheableResourceTrait;
 use Gingerminds\LaravelMultisite\Models\Site\Site;
 use Illuminate\Database\Eloquent\Model;
 use Symfony\Component\Serializer\Attribute\Groups;
@@ -46,10 +48,26 @@ use Symfony\Component\Serializer\Attribute\Groups;
         Site::GROUP_READ,
     ])
 )]
-class Language extends Model implements ResourceModelInterface, SortableModelInterface
+class Language extends Model implements ResourceModelInterface, SortableModelInterface, CacheableResourceInterface
 {
+    use CacheableResourceTrait;
+
     public const string GROUP_LIST = 'languages:list';
     public const string GROUP_READ = 'languages:read';
+
+    public static function getCacheKey(): string
+    {
+        return 'language';
+    }
+
+    /**
+     * Barely changes — 24h instead of the default 1h
+     * (config('cache.resource_ttl_seconds')).
+     */
+    public static function getCacheTtlSeconds(): ?int
+    {
+        return 86400;
+    }
 
     /**
      * @return string[]

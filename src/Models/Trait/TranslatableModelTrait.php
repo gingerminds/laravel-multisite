@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Gingerminds\LaravelMultisite\Models\Trait;
 
+use Gingerminds\LaravelCore\Models\EagerLoadableModelInterface;
 use Gingerminds\LaravelMultisite\Models\Language\Language;
 use Gingerminds\LaravelMultisite\Services\Context\LanguageContext;
 use Illuminate\Database\Eloquent\Builder;
@@ -17,11 +18,34 @@ trait TranslatableModelTrait
 {
     /**
      * Boot trait.
+     *
+     * `translations`/`currentTranslation` are always eager-loaded, and so is
+     * `language` on each — it's `TranslationModelTrait`'s own relation, used
+     * by essentially every `getSwitchLangAttribute()`-style accessor
+     * (`Product`, `Page`, `Event`...) to key its result by ISO, so it's not
+     * project- or model-specific the way `mainVisual`/`thumbnail`/
+     * `downloadableFile` are. On top of that, if the translation model
+     * itself declares `EagerLoadableModelInterface` (e.g. `EventTranslation`'s
+     * `downloadableFile`, or a translation that overrides the owner's
+     * `mainVisual`/`thumbnail` — see `HasMainVisualAndThumbnailTrait`), those
+     * relations are nested in too. Otherwise every one of those still
+     * lazy-loads per row/translation the moment it's actually read.
      */
     protected static function bootTranslatableModelTrait(): void
     {
         static::addGlobalScope('translations', function (Builder $builder) {
-            $builder->with(['translations', 'currentTranslation']);
+            $with = ['translations', 'currentTranslation', 'translations.language', 'currentTranslation.language'];
+
+            $translationModel = new static()->getTranslationModel();
+
+            if (is_subclass_of($translationModel, EagerLoadableModelInterface::class)) {
+                foreach ($translationModel::getEagerLoads() as $relation) {
+                    $with[] = "translations.$relation";
+                    $with[] = "currentTranslation.$relation";
+                }
+            }
+
+            $builder->with($with);
         });
     }
 
