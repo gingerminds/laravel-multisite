@@ -7,8 +7,12 @@ namespace Gingerminds\LaravelMultisite\Models\Site;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\GetCollection;
+use Gingerminds\LaravelCore\Models\CacheableResourceInterface;
+use Gingerminds\LaravelCore\Models\EagerLoadableModelInterface;
 use Gingerminds\LaravelCore\Models\ResourceModelInterface;
 use Gingerminds\LaravelCore\Models\SortableModelInterface;
+use Gingerminds\LaravelCore\Models\Trait\CacheableResourceTrait;
+use Gingerminds\LaravelCore\Models\Trait\EagerLoadableModelTrait;
 use Gingerminds\LaravelMultisite\ApiProvider\Site\SiteProvider;
 use Gingerminds\LaravelMultisite\Models\Language\Language;
 use Illuminate\Database\Eloquent\Model;
@@ -70,11 +74,43 @@ use Symfony\Component\Serializer\Attribute\Groups;
         Site::GROUP_READ,
     ])
 )]
-class Site extends Model implements ResourceModelInterface, SortableModelInterface
+class Site extends Model implements
+    ResourceModelInterface,
+    SortableModelInterface,
+    EagerLoadableModelInterface,
+    CacheableResourceInterface
 {
+    use CacheableResourceTrait;
+    use EagerLoadableModelTrait;
+
     public const string GROUP_LIST = 'sites:list';
     public const string GROUP_READ = 'sites:read';
     public const string GROUP_EDIT = 'sites:edit';
+
+    /**
+     * `languages`/`default_language` are both serialized in GROUP_LIST/READ —
+     * without this every row triggers two extra queries on every listing.
+     *
+     * @return array<int, string>
+     */
+    public static function getEagerLoads(): array
+    {
+        return ['languages', 'defaultLanguage'];
+    }
+
+    public static function getCacheKey(): string
+    {
+        return 'site';
+    }
+
+    /**
+     * Barely changes — 24h instead of the default 1h
+     * (config('cache.resource_ttl_seconds')).
+     */
+    public static function getCacheTtlSeconds(): ?int
+    {
+        return 86400;
+    }
 
     /**
      * @return string[]
