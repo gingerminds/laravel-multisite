@@ -49,3 +49,7 @@ Resolution is delegated to `LanguageContextResolver`, and depends on `SiteContex
 ## Where this is used
 
 `TranslatableModelTrait` and `LanguageContextedModelTrait` (see [Traits](./Traits.md)) both consult `LanguageContext` internally to decide which translation/language-scoped rows to return, with the `Accept-Language` header as a safe fallback when no context is bound (e.g. in a console command or queued job).
+
+## Swagger / OpenAPI documentation
+
+`LaravelMultisiteServiceProvider::boot()` registers `SiteContextedModelTrait` → `X-Site-Id` and `LanguageContextedModelTrait`/`TranslatableModelTrait` → `Accept-Language` on `Gingerminds\LaravelCore\ApiPlatform\ApiHeaderParameterRegistry`. Any resource — in this package, another package, or a project — that uses one of these traits automatically gets the corresponding header documented on every one of its OpenAPI operations, with no attribute to add on the model itself. See [laravel-core's API docs](../../gingerminds-laravel-core/docs/API.md#documenting-context-headers-x-site-id-accept-language-) for how the mechanism works.

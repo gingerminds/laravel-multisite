@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Gingerminds\LaravelMultisite\Providers;
 
+use ApiPlatform\Metadata\HeaderParameter;
 use ApiPlatform\State\ProviderInterface;
+use Gingerminds\LaravelCore\ApiPlatform\ApiHeaderParameterRegistry;
 use Gingerminds\LaravelCore\Cache\CacheContextResolverInterface;
 use Gingerminds\LaravelMultisite\ApiProvider\Language\LanguageProvider;
 use Gingerminds\LaravelMultisite\ApiProvider\Site\SiteProvider;
@@ -17,6 +19,9 @@ use Gingerminds\LaravelMultisite\Http\Requests\Language\LanguageRequest;
 use Gingerminds\LaravelMultisite\Http\Requests\Site\SiteRequest;
 use Gingerminds\LaravelMultisite\Models\Language\Language;
 use Gingerminds\LaravelMultisite\Models\Site\Site;
+use Gingerminds\LaravelMultisite\Models\Site\SiteContextedModelTrait;
+use Gingerminds\LaravelMultisite\Models\Trait\LanguageContextedModelTrait;
+use Gingerminds\LaravelMultisite\Models\Trait\TranslatableModelTrait;
 use Gingerminds\LaravelMultisite\Repositories\Language\LanguageRepository;
 use Gingerminds\LaravelMultisite\Repositories\Site\SiteRepository;
 use Gingerminds\LaravelMultisite\Resolver\ResourceResolver;
@@ -131,6 +136,8 @@ class LaravelMultisiteServiceProvider extends ServiceProvider
         $this->app->scoped(LanguageContext::class);
         $this->app->singleton(LanguageContextResolver::class);
 
+        $this->registerApiHeaderParameters();
+
         Route::model('site', ResourceResolver::model('site'));
 
         // Chargement des routes du package
@@ -157,5 +164,34 @@ class LaravelMultisiteServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__ . '/../../config/gingerminds-multisite.php' => config_path('gingerminds-multisite.php'),
         ], 'gingerminds-multisite-config');
+    }
+
+    /**
+     * Documents X-Site-Id and Accept-Language in the OpenAPI/Swagger docs of
+     * every resource using the corresponding context trait — see
+     * ApiHeaderParameterRegistry. Both LanguageContextedModelTrait (scoping)
+     * and TranslatableModelTrait (translations) resolve the same
+     * Accept-Language header, so both map to the same HeaderParameter.
+     */
+    private function registerApiHeaderParameters(): void
+    {
+        $registry = $this->app->make(ApiHeaderParameterRegistry::class);
+
+        $registry->register(SiteContextedModelTrait::class, new HeaderParameter(
+            key: 'X-Site-Id',
+            schema: ['type' => 'string'],
+            description: 'Restricts the response to the given site. Falls back to the request '
+                . 'host, then to the first site, when omitted.',
+        ));
+
+        $acceptLanguage = new HeaderParameter(
+            key: 'Accept-Language',
+            schema: ['type' => 'string'],
+            description: 'Selects the translation/language-scoped rows to return. Falls back '
+                . "to the site's default language when omitted or unmatched.",
+        );
+
+        $registry->register(LanguageContextedModelTrait::class, $acceptLanguage);
+        $registry->register(TranslatableModelTrait::class, $acceptLanguage);
     }
 }
