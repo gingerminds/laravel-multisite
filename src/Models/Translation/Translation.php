@@ -10,14 +10,6 @@ use ApiPlatform\Metadata\GetCollection;
 use Gingerminds\LaravelMultisite\ApiProvider\Translation\TranslationProvider;
 use Symfony\Component\Serializer\Attribute\Groups;
 
-/**
- * A single front translation entry, read live from the spreadsheet linked to
- * the current site on Google Drive. Not backed by a database table: see
- * TranslationProvider / TranslationService for how it is resolved.
- *
- * One entry per translation key, holding every locale found in the file
- * (e.g. values => ['fr' => '...', 'en' => '...', 'de' => '...', 'it' => '...']).
- */
 #[ApiResource(
     uriTemplate: '/translations',
     operations: [
