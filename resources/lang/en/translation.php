@@ -24,4 +24,9 @@ return [
         'name_s' => 'Language',
         'name_p' => 'Languages',
     ],
+    'translations' => [
+        'refresh_action' => 'Refresh translations',
+        'refresh_dispatched' => 'The translations refresh has been dispatched in the background.',
+        'site_required' => 'Please select a site.',
+    ],
 ];

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Gingerminds\LaravelMultisite\Services\Translation;
 
 use Gingerminds\LaravelMultisite\Models\Site\Site;
+use Gingerminds\LaravelMultisite\Resolver\ResourceResolver;
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Support\Facades\Log;
 use Throwable;
@@ -40,13 +41,42 @@ class TranslationService
             return [];
         }
 
-        $cacheKey = sprintf('gingerminds-multisite.translations.site.%d', (int) $site->id);
-        $ttl      = (int) config('gingerminds-multisite.translation.cache_ttl', 300);
+        $cacheKey = $this->cacheKeyForSite($site);
+        $ttl      = ResourceResolver::model('translations')::getCacheTtl();
+        $callback = fn (): array => $this->fetchFromDrive($site);
 
+        // Cache::remember()/put() treat a string $ttl by casting it to an int
+        // of seconds — passing the literal 'forever' through would cast to 0
+        // and immediately forget() the entry, so 'forever' needs its own
+        // dedicated call instead of being funneled through remember().
         /** @var array<string, array<string, string>> $translations */
-        $translations = $this->cache->remember($cacheKey, $ttl, fn (): array => $this->fetchFromDrive($site));
+        $translations = is_string($ttl)
+            ? $this->cache->rememberForever($cacheKey, $callback)
+            : $this->cache->remember($cacheKey, $ttl, $callback);
 
         return $translations;
+    }
+
+    public function resetCacheForSite(Site $site): void
+    {
+        if (!$this->isEnabledForSite($site)) {
+            return;
+        }
+
+        $this->cache->forget($this->cacheKeyForSite($site));
+    }
+
+    /**
+     * Deliberately not using CacheKeyBuilder/CacheContextResolverInterface
+     * here: those resolve their context (site, language) from the current
+     * HTTP request, which doesn't exist when this runs from a queued job.
+     * The site id is the only scoping this cache key needs.
+     */
+    private function cacheKeyForSite(Site $site): string
+    {
+        $translationModel = ResourceResolver::model('translations');
+
+        return $translationModel::getCacheKey() . '.site.' . $site->id;
     }
 
     /**

@@ -24,4 +24,9 @@ return [
         'name_s' => 'Langue',
         'name_p' => 'Langues',
     ],
+    'translations' => [
+        'refresh_action' => 'Rafraîchir les traductions',
+        'refresh_dispatched' => 'La mise à jour des traductions a été lancée en arrière-plan.',
+        'site_required' => 'Merci de sélectionner un site.',
+    ],
 ];
