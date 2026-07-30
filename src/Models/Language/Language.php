@@ -64,7 +64,7 @@ class Language extends Model implements ResourceModelInterface, SortableModelInt
      * Barely changes — 24h instead of the default 1h
      * (config('cache.resource_ttl_seconds')).
      */
-    public static function getCacheTtlSeconds(): ?int
+    public static function getCacheTtl(): string|int|null
     {
         return 86400;
     }

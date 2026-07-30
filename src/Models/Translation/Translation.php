@@ -7,6 +7,7 @@ namespace Gingerminds\LaravelMultisite\Models\Translation;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\GetCollection;
+use Gingerminds\LaravelCore\Models\CacheableResourceInterface;
 use Gingerminds\LaravelMultisite\ApiProvider\Translation\TranslationProvider;
 use Symfony\Component\Serializer\Attribute\Groups;
 
@@ -28,7 +29,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
     property: 'values',
     serialize: new Groups([Translation::GROUP_READ])
 )]
-class Translation
+class Translation implements CacheableResourceInterface
 {
     public const string GROUP_READ = 'translations:read';
 
@@ -39,5 +40,15 @@ class Translation
         public readonly string $locale,
         public readonly array $values,
     ) {
+    }
+
+    public static function getCacheKey(): string
+    {
+        return 'translations';
+    }
+
+    public static function getCacheTtl(): string|int|null
+    {
+        return 'forever';
     }
 }

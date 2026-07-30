@@ -11,6 +11,7 @@ use Gingerminds\LaravelMultisite\Repositories\Site\SiteRepository;
 use Gingerminds\LaravelMultisite\Http\Requests\Language\LanguageRequest;
 use Gingerminds\LaravelMultisite\ApiProvider\Site\SiteProvider;
 use Gingerminds\LaravelMultisite\StateProcessor\Site\SiteStateProcessor;
+use Gingerminds\LaravelMultisite\Models\Translation\Translation;
 
 return [
     'translation' => [
@@ -54,6 +55,10 @@ return [
             'request' => SiteRequest::class,
             'provider' => SiteProvider::class,
             'state_processor' => SiteStateProcessor::class
+        ],
+
+        'translations' => [
+            'model' => Translation::class,
         ],
     ],
 ];

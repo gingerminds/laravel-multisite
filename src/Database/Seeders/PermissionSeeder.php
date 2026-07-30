@@ -24,6 +24,8 @@ class PermissionSeeder extends Seeder
         Permission::updateOrCreate(['name' => 'edit languages', 'guard_name' => 'web']);
         Permission::updateOrCreate(['name' => 'delete languages', 'guard_name' => 'web']);
 
+        Permission::updateOrCreate(['name' => 'manage translations', 'guard_name' => 'web']);
+
         $this->command->info('Permissions table seeded!');
         // updateOrCreate roles and assign existing permissions
     }
