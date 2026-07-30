@@ -58,27 +58,6 @@ class TranslationService
     }
 
     /**
-     * Same data as getTranslationsForSite() but pivoted to be keyed by
-     * translation key, each holding every locale's value:
-     * key => [locale => value].
-     *
-     * @return array<string, array<string, string>>
-     */
-    public function getTranslationsGroupedByKey(Site $site): array
-    {
-        $byLocale = $this->getTranslationsForSite($site);
-
-        $byKey = [];
-        foreach ($byLocale as $locale => $values) {
-            foreach ($values as $key => $value) {
-                $byKey[$key][$locale] = $value;
-            }
-        }
-
-        return $byKey;
-    }
-
-    /**
      * @return array<string, array<string, string>>
      */
     private function fetchFromDrive(Site $site): array
@@ -93,8 +72,12 @@ class TranslationService
             return $this->parser->parse($xlsxPath);
         } catch (Throwable $exception) {
             // Never log the credentials or the file content, only enough to
-            // diagnose which site is misconfigured.
-            Log::warning('Unable to fetch front translations from Google Drive.', [
+            // diagnose which site is misconfigured. Routed to its own
+            // channel (see LaravelMultisiteServiceProvider::configureGoogleLogChannel())
+            // so Google API noise doesn't drown out the app's default logs.
+            $channel = (string) config('gingerminds-multisite.translation.google_log_channel', 'google');
+
+            Log::channel($channel)->warning('Unable to fetch front translations from Google Drive.', [
                 'site_id' => $site->id,
                 'message' => $exception->getMessage(),
             ]);

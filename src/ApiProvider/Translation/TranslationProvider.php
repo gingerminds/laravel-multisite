@@ -24,9 +24,10 @@ class TranslationProvider implements ProviderInterface
     }
 
     /**
-     * Returns every translation key for the current site, each with all of
-     * its locale values ({key, values: {fr, en, de, it}}). No per-locale
-     * filtering: the front receives the whole table in one call.
+     * Returns every locale for the current site, each with all of its
+     * translation key values ({locale, values: {key1, key2, ...}}). Without
+     * an `Accept-Language` header the front receives the whole table in one
+     * call; with one, only the requested locale is returned.
      *
      * @param array<string, mixed> $uriVariables
      * @param array<string, mixed> $context
@@ -35,14 +36,23 @@ class TranslationProvider implements ProviderInterface
      */
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): array
     {
-        $site = $this->resolveSite(request());
+        $request = request();
+
+        $site = $this->resolveSite($request);
         if (!$site instanceof Site) {
             return [];
         }
 
+        $translations = $this->translationService->getTranslationsForSite($site);
+
+        $locale = $this->resolveRequestedLocale($request);
+        if ($locale !== null) {
+            $translations = array_intersect_key($translations, [$locale => true]);
+        }
+
         $resources = [];
-        foreach ($this->translationService->getTranslationsGroupedByKey($site) as $key => $values) {
-            $resources[] = new Translation((string) $key, $values);
+        foreach ($translations as $locale => $values) {
+            $resources[] = new Translation((string) $locale, $values);
         }
 
         return $resources;
@@ -65,5 +75,22 @@ class TranslationProvider implements ProviderInterface
         }
 
         return $this->siteContext->site();
+    }
+
+    /**
+     * Extracts the primary locale from the `Accept-Language` header (e.g.
+     * "fr-FR,en;q=0.8" => "fr"), null when the header is absent or empty.
+     */
+    private function resolveRequestedLocale(Request $request): ?string
+    {
+        $header = $request->header('Accept-Language');
+        if (!$header) {
+            return null;
+        }
+
+        $primary = strtolower(trim(explode(';', explode(',', $header)[0])[0]));
+        $primary = explode('-', $primary)[0];
+
+        return $primary !== '' ? $primary : null;
     }
 }

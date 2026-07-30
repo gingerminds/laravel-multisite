@@ -21,7 +21,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
 )]
 #[ApiProperty(
     identifier: true,
-    property: 'key',
+    property: 'locale',
     serialize: new Groups([Translation::GROUP_READ])
 )]
 #[ApiProperty(
@@ -33,10 +33,10 @@ class Translation
     public const string GROUP_READ = 'translations:read';
 
     /**
-     * @param array<string, string> $values locale => value
+     * @param array<string, string> $values key => value
      */
     public function __construct(
-        public readonly string $key,
+        public readonly string $locale,
         public readonly array $values,
     ) {
     }
