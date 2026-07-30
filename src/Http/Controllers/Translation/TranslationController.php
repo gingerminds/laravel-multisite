@@ -2,6 +2,7 @@
 
 namespace Gingerminds\LaravelMultisite\Http\Controllers\Translation;
 
+use Gingerminds\LaravelCore\Models\User\User;
 use Gingerminds\LaravelMultisite\Jobs\Translation\RefreshSiteTranslationsCache;
 use Gingerminds\LaravelMultisite\Models\Site\Site;
 use Illuminate\Http\RedirectResponse;
@@ -16,7 +17,13 @@ class TranslationController extends Controller
      */
     public function refresh(Request $request): RedirectResponse
     {
-        abort_unless((bool) auth()->user()?->can('manage translations'), 403);
+        /** @var User|null $user */
+        $user = auth()->user();
+
+        abort_unless(
+            $user?->hasRole('Super-Admin') || $user?->can('manage translations'),
+            403
+        );
 
         $site = Site::find($request->input('site_id'));
 
