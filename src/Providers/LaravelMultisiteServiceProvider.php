@@ -53,6 +53,8 @@ class LaravelMultisiteServiceProvider extends ServiceProvider
             'gingerminds-multisite'
         );
 
+        $this->configureGoogleLogChannel();
+
         // Rebinds core's no-op default with the real site/language cache
         // context, so AbstractRepository's cache keys vary with what
         // actually changes the query result for a translated, site-scoped
@@ -164,6 +166,32 @@ class LaravelMultisiteServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__ . '/../../config/gingerminds-multisite.php' => config_path('gingerminds-multisite.php'),
         ], 'gingerminds-multisite-config');
+    }
+
+    /**
+     * Registers a default log channel for Google API client errors (see
+     * TranslationService::fetchFromDrive()), so they land in their own
+     * daily file instead of the app's default channel.
+     *
+     * Only kicks in when the host app has not already defined a channel
+     * under that name in config/logging.php — an app that wants its own
+     * driver (Slack, stack, ...) just declares the channel itself and this
+     * is a no-op.
+     */
+    private function configureGoogleLogChannel(): void
+    {
+        $channel = (string) config('gingerminds-multisite.translation.google_log_channel', 'google');
+
+        if (config("logging.channels.{$channel}") !== null) {
+            return;
+        }
+
+        config(["logging.channels.{$channel}" => [
+            'driver' => 'daily',
+            'path'   => storage_path("logs/{$channel}.log"),
+            'level'  => config('gingerminds-multisite.translation.google_log_level', 'debug'),
+            'days'   => 14,
+        ]]);
     }
 
     /**
