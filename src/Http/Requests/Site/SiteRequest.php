@@ -10,6 +10,8 @@ use Illuminate\Validation\Validator;
 
 class SiteRequest extends FormRequest implements FormRequestInterface
 {
+    private const string RULE_NULLABLE_ARRAY = 'nullable|array';
+
     protected function prepareForValidation(): void
     {
         /** @var array<int, int|string|null> $rawLanguages */
@@ -109,13 +111,13 @@ class SiteRequest extends FormRequest implements FormRequestInterface
             'code'                 => 'required|string|max:255',
             'url'                  => 'required|url',
             'default_language'     => 'nullable|integer|exists:languages,id',
-            'languages'            => 'nullable|array',
+            'languages'            => self::RULE_NULLABLE_ARRAY,
             'google_drive_file_id' => 'nullable|string|max:255',
             // After prepareForValidation(), a valid payload has already been
             // decoded to an array; anything still a string means the JSON
             // pasted in the admin form was invalid.
-            'google_service_account_credentials' => 'nullable|array',
-            'front_urls'                         => 'nullable|array',
+            'google_service_account_credentials' => self::RULE_NULLABLE_ARRAY,
+            'front_urls'                         => self::RULE_NULLABLE_ARRAY,
             'front_urls.*'                       => 'required|url|max:255',
         ];
     }
