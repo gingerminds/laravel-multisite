@@ -10,6 +10,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Symfony\Component\Serializer\Attribute\Groups;
 
+/**
+ * @property string $url
+ */
 #[ApiResource(
     operations: [],
 )]
