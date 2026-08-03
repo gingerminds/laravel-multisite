@@ -20,6 +20,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
 use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Serializer\Attribute\SerializedName;
 
 /**
  * @property string $google_drive_file_id
@@ -77,11 +78,14 @@ use Symfony\Component\Serializer\Attribute\Groups;
     ])
 )]
 #[ApiProperty(
-    property: 'front_urls',
-    serialize: new Groups([
-        Site::GROUP_LIST,
-        Site::GROUP_READ,
-    ])
+    property: 'plain_front_urls',
+    serialize: [
+        new Groups([
+            Site::GROUP_LIST,
+            Site::GROUP_READ,
+        ]),
+        new SerializedName('front_urls'),
+    ]
 )]
 class Site extends Model implements
     ResourceModelInterface,
@@ -190,7 +194,7 @@ class Site extends Model implements
     /**
      * @return Collection<int, string>
      */
-    public function getFrontUrlsAttribute(): Collection
+    public function getPlainFrontUrlsAttribute(): Collection
     {
         return $this->frontUrls()->get()->map(fn (SiteFrontUrl $frontUrl): string => $frontUrl->url);
     }
