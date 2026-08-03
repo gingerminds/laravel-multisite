@@ -6,6 +6,8 @@ return [
     ],
     'form' => [
         'url' => 'Domain',
+        'front_urls' => 'Front URLs',
+        'front_urls_helper' => 'One URL per line. Domains of the front-end sites linked to this back office.',
         'iso' => 'ISO Code',
         'default_language' => 'Default language',
         'google_drive_file_id' => 'Google Drive file ID',

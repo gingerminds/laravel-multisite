@@ -61,6 +61,19 @@ class SiteRequest extends FormRequest implements FormRequestInterface
                 }
             }
         }
+
+        // The admin form exposes front URLs as a single textarea, one URL
+        // per line, rather than a dynamic list of inputs.
+        $frontUrls = $this->input('front_urls');
+        if (is_string($frontUrls)) {
+            $this->merge([
+                'front_urls' => collect(preg_split('/\r\n|\r|\n/', $frontUrls) ?: [])
+                    ->map(fn ($url): string => trim((string) $url))
+                    ->filter(fn (string $url): bool => $url !== '')
+                    ->values()
+                    ->all(),
+            ]);
+        }
     }
 
     public function withValidator(Validator $validator): void
@@ -102,6 +115,8 @@ class SiteRequest extends FormRequest implements FormRequestInterface
             // decoded to an array; anything still a string means the JSON
             // pasted in the admin form was invalid.
             'google_service_account_credentials' => 'nullable|array',
+            'front_urls'                         => 'nullable|array',
+            'front_urls.*'                       => 'required|url|max:255',
         ];
     }
 }

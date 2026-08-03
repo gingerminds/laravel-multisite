@@ -48,6 +48,7 @@ class SiteRepository extends AbstractRepository implements RepositoryInterface
         $resourceModel->save();
 
         $this->syncLanguages($resourceModel, $request->all());
+        $this->syncFrontUrls($resourceModel, $request->all());
 
         return $resourceModel;
     }
@@ -90,5 +91,24 @@ class SiteRepository extends AbstractRepository implements RepositoryInterface
             ->all();
 
         $site->languages()->sync($sync);
+    }
+
+    /**
+     * @param array<mixed> $data
+     */
+    private function syncFrontUrls(Site $site, array $data): void
+    {
+        if (!array_key_exists('front_urls', $data)) {
+            return;
+        }
+
+        /** @var array<int, string> $urls */
+        $urls = array_values(array_unique(array_filter((array) $data['front_urls'])));
+
+        $site->frontUrls()->whereNotIn('url', $urls)->delete();
+
+        foreach ($urls as $url) {
+            $site->frontUrls()->firstOrCreate(['url' => $url]);
+        }
     }
 }
