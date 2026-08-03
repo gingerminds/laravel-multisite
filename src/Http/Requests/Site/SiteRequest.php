@@ -10,6 +10,8 @@ use Illuminate\Validation\Validator;
 
 class SiteRequest extends FormRequest implements FormRequestInterface
 {
+    private const string RULE_NULLABLE_ARRAY = 'nullable|array';
+
     protected function prepareForValidation(): void
     {
         /** @var array<int, int|string|null> $rawLanguages */
@@ -61,6 +63,19 @@ class SiteRequest extends FormRequest implements FormRequestInterface
                 }
             }
         }
+
+        // The admin form exposes front URLs as a single textarea, one URL
+        // per line, rather than a dynamic list of inputs.
+        $frontUrls = $this->input('front_urls');
+        if (is_string($frontUrls)) {
+            $this->merge([
+                'front_urls' => collect(preg_split('/\r\n|\r|\n/', $frontUrls) ?: [])
+                    ->map(fn ($url): string => trim((string) $url))
+                    ->filter(fn (string $url): bool => $url !== '')
+                    ->values()
+                    ->all(),
+            ]);
+        }
     }
 
     public function withValidator(Validator $validator): void
@@ -96,12 +111,14 @@ class SiteRequest extends FormRequest implements FormRequestInterface
             'code'                 => 'required|string|max:255',
             'url'                  => 'required|url',
             'default_language'     => 'nullable|integer|exists:languages,id',
-            'languages'            => 'nullable|array',
+            'languages'            => self::RULE_NULLABLE_ARRAY,
             'google_drive_file_id' => 'nullable|string|max:255',
             // After prepareForValidation(), a valid payload has already been
             // decoded to an array; anything still a string means the JSON
             // pasted in the admin form was invalid.
-            'google_service_account_credentials' => 'nullable|array',
+            'google_service_account_credentials' => self::RULE_NULLABLE_ARRAY,
+            'front_urls'                         => self::RULE_NULLABLE_ARRAY,
+            'front_urls.*'                       => 'required|url|max:255',
         ];
     }
 }

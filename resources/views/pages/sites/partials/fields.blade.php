@@ -17,6 +17,23 @@
                         :value="old('url', isset($site) ? $site->url : null)"
                 />
             </div>
+            <div class="row">
+                @php
+                    $oldFrontUrls = old('front_urls');
+                    $frontUrlsValue = is_array($oldFrontUrls)
+                        ? implode("\n", $oldFrontUrls)
+                        : (isset($site) ? $site->frontUrls->pluck('url')->implode("\n") : null);
+                @endphp
+                <x-gingerminds-core::form.inputs.textarea
+                        id="front_urls"
+                        :label="__('gingerminds-multisite::translation.form.front_urls')"
+                        size="xl"
+                        :required="false"
+                        :rows="4"
+                        :helper="__('gingerminds-multisite::translation.form.front_urls_helper')"
+                        :value="$frontUrlsValue"
+                />
+            </div>
         </div>
     </div>
     <div class="card">

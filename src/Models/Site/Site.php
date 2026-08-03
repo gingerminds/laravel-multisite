@@ -17,6 +17,7 @@ use Gingerminds\LaravelMultisite\ApiProvider\Site\SiteProvider;
 use Gingerminds\LaravelMultisite\Models\Language\Language;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Symfony\Component\Serializer\Attribute\Groups;
 
 /**
@@ -74,6 +75,13 @@ use Symfony\Component\Serializer\Attribute\Groups;
         Site::GROUP_READ,
     ])
 )]
+#[ApiProperty(
+    property: 'frontUrls',
+    serialize: new Groups([
+        Site::GROUP_LIST,
+        Site::GROUP_READ,
+    ])
+)]
 class Site extends Model implements
     ResourceModelInterface,
     SortableModelInterface,
@@ -88,14 +96,15 @@ class Site extends Model implements
     public const string GROUP_EDIT = 'sites:edit';
 
     /**
-     * `languages`/`default_language` are both serialized in GROUP_LIST/READ —
-     * without this every row triggers two extra queries on every listing.
+     * `languages`/`default_language`/`frontUrls` are all serialized in
+     * GROUP_LIST/READ — without this every row triggers extra queries on
+     * every listing.
      *
      * @return array<int, string>
      */
     public static function getEagerLoads(): array
     {
-        return ['languages', 'defaultLanguage'];
+        return ['languages', 'defaultLanguage', 'frontUrls'];
     }
 
     public static function getCacheKey(): string
@@ -167,5 +176,13 @@ class Site extends Model implements
     {
         return $this->belongsToMany(Language::class, 'site_language')
             ->wherePivot('is_default', true);
+    }
+
+    /**
+     * @return HasMany<SiteFrontUrl, $this>
+     */
+    public function frontUrls(): HasMany
+    {
+        return $this->hasMany(SiteFrontUrl::class);
     }
 }
