@@ -18,6 +18,7 @@ use Gingerminds\LaravelMultisite\Models\Language\Language;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Collection;
 use Symfony\Component\Serializer\Attribute\Groups;
 
 /**
@@ -76,7 +77,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
     ])
 )]
 #[ApiProperty(
-    property: 'frontUrls',
+    property: 'front_urls',
     serialize: new Groups([
         Site::GROUP_LIST,
         Site::GROUP_READ,
@@ -184,5 +185,13 @@ class Site extends Model implements
     public function frontUrls(): HasMany
     {
         return $this->hasMany(SiteFrontUrl::class);
+    }
+
+    /**
+     * @return Collection<int, string>
+     */
+    public function getFrontUrlsAttribute(): Collection
+    {
+        return $this->frontUrls()->get()->map(fn (SiteFrontUrl $frontUrl): string => $frontUrl->url);
     }
 }
