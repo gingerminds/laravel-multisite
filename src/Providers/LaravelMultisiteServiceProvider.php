@@ -142,27 +142,22 @@ class LaravelMultisiteServiceProvider extends ServiceProvider
 
         Route::model('site', ResourceResolver::model('site'));
 
-        // Chargement des routes du package
         if (! $this->app->routesAreCached()) {
             $this->loadRoutesFrom(__DIR__ . '/../../routes/web.php');
         }
 
-        // Chargement des migrations
         $this->loadMigrationsFrom(__DIR__ . '/../../database/migrations');
 
-        // Chargement des vues
         $this->loadViewsFrom(
             __DIR__ . '/../../resources/views',
             'gingerminds-multisite'
         );
 
-        // Chargement des traductions
         $this->loadTranslationsFrom(
             __DIR__ . '/../../resources/lang',
             'gingerminds-multisite'
         );
 
-        // Publication de la config
         $this->publishes([
             __DIR__ . '/../../config/gingerminds-multisite.php' => config_path('gingerminds-multisite.php'),
         ], 'gingerminds-multisite-config');

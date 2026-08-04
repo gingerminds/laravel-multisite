@@ -11,9 +11,6 @@ trait SiteContextedModelTrait
 {
     private const SITE_ID_COLUMN_SUFFIX = '.site_id';
 
-    /**
-     * Boot trait.
-     */
     protected static function bootSiteContextedModelTrait(): void
     {
         static::addGlobalScope('site', function (Builder $builder) {
@@ -86,8 +83,6 @@ trait SiteContextedModelTrait
     }
 
     /**
-     * Site relation.
-     *
      * @return BelongsTo<Site, $this>
      */
     public function site(): BelongsTo
@@ -96,8 +91,6 @@ trait SiteContextedModelTrait
     }
 
     /**
-     * Manual scope.
-     *
      * @param Builder<$this> $query
      * @return Builder<$this>
      */

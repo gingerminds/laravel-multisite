@@ -17,16 +17,11 @@ class LaravelMultisiteAuthServiceProvider extends ServiceProvider
         Language::class => LanguagePolicy::class,
     ];
 
-    /**
-     * Register services.
-     */
     public function register(): void
     {
+        // No bindings to register; policies are wired in boot() via registerPolicies().
     }
 
-    /**
-     * Bootstrap services.
-     */
     public function boot(): void
     {
         app(PermissionRegistrar::class)

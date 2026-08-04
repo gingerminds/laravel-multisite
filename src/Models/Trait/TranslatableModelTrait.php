@@ -17,8 +17,6 @@ use Throwable;
 trait TranslatableModelTrait
 {
     /**
-     * Boot trait.
-     *
      * `translations`/`currentTranslation` are always eager-loaded, and so is
      * `language` on each — it's `TranslationModelTrait`'s own relation, used
      * by essentially every `getSwitchLangAttribute()`-style accessor
@@ -49,9 +47,6 @@ trait TranslatableModelTrait
         });
     }
 
-    /**
-     * All translations.
-     */
     public function translations(): HasMany
     {
         return $this->hasMany(
@@ -60,9 +55,6 @@ trait TranslatableModelTrait
         );
     }
 
-    /**
-     * Current translation with fallback.
-     */
     public function currentTranslation(): HasOne
     {
         $relation = $this->hasOne(
@@ -181,9 +173,6 @@ trait TranslatableModelTrait
         return 'CASE ' . implode(' ', $cases) . ' ELSE ' . $else . ' END';
     }
 
-    /**
-     * Get translation for language.
-     */
     public function translation(
         null|int|Language $language = null,
         bool $fallback = true,
@@ -226,25 +215,16 @@ trait TranslatableModelTrait
             ->first();
     }
 
-    /**
-     * Shortcut attribute.
-     */
     public function getTranslatedAttribute(): ?Model
     {
         return $this->translation();
     }
 
-    /**
-     * Translation foreign key.
-     */
     protected function getTranslationForeignKey(): string
     {
         return $this->getForeignKey();
     }
 
-    /**
-     * Translation model class.
-     */
     protected function getTranslationModel(): string
     {
         if (property_exists($this, 'translationModel')) {
