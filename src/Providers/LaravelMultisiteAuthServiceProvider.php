@@ -19,6 +19,7 @@ class LaravelMultisiteAuthServiceProvider extends ServiceProvider
 
     public function register(): void
     {
+        // No bindings to register; policies are wired in boot() via registerPolicies().
     }
 
     public function boot(): void
