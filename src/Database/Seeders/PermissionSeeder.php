@@ -13,7 +13,6 @@ class PermissionSeeder extends Seeder
      */
     public function run(): void
     {
-        // Reset cached roles and permissions
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         Permission::updateOrCreate(['name' => 'view sites', 'guard_name' => 'web']);
@@ -27,6 +26,5 @@ class PermissionSeeder extends Seeder
         Permission::updateOrCreate(['name' => 'manage translations', 'guard_name' => 'web']);
 
         $this->command->info('Permissions table seeded!');
-        // updateOrCreate roles and assign existing permissions
     }
 }
