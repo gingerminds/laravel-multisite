@@ -11,7 +11,7 @@ Multi-site and multi-language support for Laravel projects built on `gingerminds
 ## Requirements
 
 - PHP ^8.4
-- `gingerminds/laravel-core` ^2.8
+- `gingerminds/laravel-core` ^4.3
 
 ## Quick start
 
