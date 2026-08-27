@@ -2,6 +2,7 @@
 
 namespace Gingerminds\LaravelMultisite\Models\Site;
 
+use Gingerminds\LaravelMultisite\Resolver\ResourceResolver;
 use Gingerminds\LaravelMultisite\Services\Context\SiteContext;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -69,10 +70,11 @@ trait SiteContextedModelTrait
             return $siteId;
         }
 
-        $host = request()->getHost();
-        $site = Site::where('url', 'LIKE', '%' . $host . '%')->first();
+        $modelClass = ResourceResolver::model('site');
+        $host       = request()->getHost();
+        $site       = $modelClass::where('url', 'LIKE', '%' . $host . '%')->first();
 
-        return $site?->id ?? Site::value('id');
+        return $site?->id ?? $modelClass::value('id');
     }
 
     private static function assignSiteIdOnCreate($model): void
@@ -87,7 +89,7 @@ trait SiteContextedModelTrait
      */
     public function site(): BelongsTo
     {
-        return $this->belongsTo(Site::class);
+        return $this->belongsTo(ResourceResolver::model('site'));
     }
 
     /**

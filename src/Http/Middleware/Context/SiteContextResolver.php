@@ -3,19 +3,21 @@
 namespace Gingerminds\LaravelMultisite\Http\Middleware\Context;
 
 use Gingerminds\LaravelMultisite\Models\Site\Site;
+use Gingerminds\LaravelMultisite\Resolver\ResourceResolver;
 use Illuminate\Http\Request;
 
 class SiteContextResolver
 {
     public function resolve(Request $request): ?Site
     {
-        $siteId = $this->resolveSiteId($request);
+        $modelClass = ResourceResolver::model('site');
+        $siteId     = $this->resolveSiteId($request);
 
         if ($siteId) {
-            return Site::find((int) $siteId);
+            return $modelClass::find((int) $siteId);
         }
 
-        return Site::where('url', 'LIKE', '%' . $request->getHost() . '%')->first() ?? Site::first();
+        return $modelClass::where('url', 'LIKE', '%' . $request->getHost() . '%')->first() ?? $modelClass::first();
     }
 
     private function resolveSiteId(Request $request): mixed
