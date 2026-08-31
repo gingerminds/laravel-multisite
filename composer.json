@@ -15,7 +15,7 @@
     ],
     "require": {
         "php": "^8.4",
-        "gingerminds/laravel-core": "^4.3",
+        "gingerminds/laravel-core": "^4.5",
         "google/apiclient": "^2.18",
         "phpoffice/phpspreadsheet": "^3.5"
     },
