@@ -26,4 +26,9 @@ class SiteContext
 
         return $this->site = $this->resolver->resolve($this->request);
     }
+
+    public function has(): bool
+    {
+        return $this->site() instanceof Site;
+    }
 }
