@@ -61,7 +61,7 @@ class SiteController extends AbstractController
         /** @var Site $site */
         $site = $this->repository->update($request, new Site());
 
-        return redirect()->route('gingerminds-multisite.sites.index')
+        return $this->redirectAfterStore('gingerminds-multisite.sites', $site->id)
             ->with('success', __('gingerminds-core::translation.successfully_created', [
                 'model' => __(self::LABEL_S)
                     . ' '
@@ -75,7 +75,7 @@ class SiteController extends AbstractController
 
         $this->repository->update($request, $site);
 
-        return redirect()->route('gingerminds-multisite.sites.edit', $site->id)
+        return $this->redirectAfterUpdate('gingerminds-multisite.sites', $site->id)
             ->with('success', __('gingerminds-core::translation.successfully_updated', [
                 'model' => __(self::LABEL_S)
                     . ' '
