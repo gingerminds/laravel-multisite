@@ -56,7 +56,7 @@ class LanguageController extends AbstractController
         /** @var Language $language */
         $language = $this->repository->update($request, new Language());
 
-        return redirect()->route('gingerminds-multisite.languages.index')
+        return $this->redirectAfterStore('gingerminds-multisite.languages', $language->id)
             ->with('success', __('gingerminds-core::translation.successfully_created', [
                 'model' => __(self::LABEL_S)
                     . ' '
@@ -70,7 +70,7 @@ class LanguageController extends AbstractController
 
         $this->repository->update($request, $language);
 
-        return redirect()->route('gingerminds-multisite.languages.edit', $language->id)
+        return $this->redirectAfterUpdate('gingerminds-multisite.languages', $language->id)
             ->with('success', __('gingerminds-core::translation.successfully_updated', [
                 'model' => __(self::LABEL_S)
                     . ' '
